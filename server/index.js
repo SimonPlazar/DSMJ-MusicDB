@@ -5,6 +5,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import postRoutes from './routes/posts.js';
+import songRoutes from './routes/songs.js';
+import userRoutes from './routes/users.js';
 
 const app = express();
 dotenv.config();
@@ -14,6 +16,8 @@ app.use(bodyParser.urlencoded({limit: "30mb", extended: true}));
 app.use(cors());
 
 app.use('/posts', postRoutes);
+app.use('/songs', songRoutes);
+app.use('/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
