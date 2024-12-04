@@ -1,26 +1,30 @@
-import { Box, Typography, Button, Paper, Drawer } from '@mui/material';
-import { useState } from 'react';
-import { ArtistFilter } from './Filters/ArtistFilter';
-import { AlbumFilter } from './Filters/AlbumFilter';
-import { GenreFilter } from './Filters/GenreFilter';
-import { YearFilter } from './Filters/YearFilter';
+import { Box, Typography, Button, Drawer } from '@mui/material';
+import {useCallback, useState} from 'react';
+import { ArtistFilter } from './Filters/Artist';
+import { AlbumFilter } from './Filters/Album';
+import { GenreFilter } from './Filters/Genre';
+import { YearFilter } from './Filters/Year';
 
-export function FilterSidebar({ open, onClose }) {
-    const [artistFilter, setArtistFilter] = useState('');
-    const [albumFilter, setAlbumFilter] = useState('');
-    const [genreFilter, setGenreFilter] = useState('');
-    const [selectedGenres, setSelectedGenres] = useState([]);
-    const [yearStart, setYearStart] = useState('');
-    const [yearEnd, setYearEnd] = useState('');
+export function FilterSidebar({ open, onClose, onApplyFilters, onResetFilters }) {
+    const [resetTrigger, setResetTrigger] = useState(false);
+    const [filterFunctions, setFilterFunctions] = useState({});
+    const genres = ['Rock', 'Pop', 'Jazz', 'Classical'];
 
-    const genres = ['Rock', 'Pop', 'Jazz', 'Classical']; // This could be fetched from an API
+    const handleFilterFunctionChange = useCallback((filterName, filterFunction) => {
+        setFilterFunctions(prev => ({
+            ...prev,
+            [filterName]: filterFunction
+        }));
+    }, []);
 
-    const handleGenreChange = (genre, isChecked) => {
-        if (isChecked) {
-            setSelectedGenres([...selectedGenres, genre]);
-        } else {
-            setSelectedGenres(selectedGenres.filter(g => g !== genre));
-        }
+    const handleApplyFilters = () => {
+        onApplyFilters(filterFunctions);
+    };
+
+    const handleResetFilters = () => {
+        setFilterFunctions({});
+        setResetTrigger(prev => !prev);
+        onResetFilters();
     };
 
     return (
@@ -58,50 +62,26 @@ export function FilterSidebar({ open, onClose }) {
                         msOverflowStyle: 'none',
                     }}
                 >
-                    <ArtistFilter value={artistFilter} onChange={setArtistFilter} />
-                    <AlbumFilter value={albumFilter} onChange={setAlbumFilter} />
-                    <GenreFilter
-                        value={genreFilter}
-                        onChange={setGenreFilter}
-                        genres={genres}
-                        onGenreChange={handleGenreChange}
-                    />
-                    <YearFilter
-                        startYear={yearStart}
-                        endYear={yearEnd}
-                        onStartYearChange={setYearStart}
-                        onEndYearChange={setYearEnd}
-                    />
-
+                    <ArtistFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
+                    <AlbumFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
+                    <GenreFilter onFilterFunctionChange={handleFilterFunctionChange} genres={genres} reset={resetTrigger}/>
+                    <YearFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
                 </Box>
 
                 <Box sx={{ mt: 2 }}>
                     <Button
                         variant="contained"
                         fullWidth
-                        onClick={() => {
-                            // Apply filters logic here
-                            console.log('Applying filters', {
-                                artist: artistFilter,
-                                album: albumFilter,
-                                genre: genreFilter,
-                                selectedGenres,
-                                yearStart,
-                                yearEnd
-                            });
-                        }}
+                        onClick={handleApplyFilters}
                     >
                         Apply Filters
                     </Button>
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         fullWidth
                         color="error"
-                        sx={{ mt: 0.5 }}
-                        onClick={() => {
-                            // Reset filters logic here
-                            console.log('Resetting filters');
-                        }}
+                        sx={{ mt: 1 }}
+                        onClick={handleResetFilters}
                     >
                         Reset Filters
                     </Button>
@@ -110,3 +90,4 @@ export function FilterSidebar({ open, onClose }) {
         </Drawer>
     );
 }
+

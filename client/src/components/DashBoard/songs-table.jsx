@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
     Table,
     TableBody,
@@ -10,16 +10,24 @@ import {
     Checkbox,
     TableSortLabel,
     Fade,
+    TablePagination,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
+import {useSelector} from "react-redux";
 
 function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
+
+    const aValue = a.tags?.[orderBy] || a.basicInfo?.[orderBy];
+    const bValue = b.tags?.[orderBy] || b.basicInfo?.[orderBy];
+
+    if (aValue < bValue) {
         return -1;
     }
-    if (b[orderBy] > a[orderBy]) {
+
+    if (aValue > bValue) {
         return 1;
     }
+
     return 0;
 }
 
@@ -39,7 +47,7 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-const AnimatedCheckbox = styled(Checkbox)(({ theme }) => ({
+const AnimatedCheckbox = styled(Checkbox)(({theme}) => ({
     transition: theme.transitions.create(['opacity', 'transform'], {
         duration: theme.transitions.duration.shorter,
     }),
@@ -55,19 +63,39 @@ const AnimatedCheckbox = styled(Checkbox)(({ theme }) => ({
 
 const AnimatedTableCell = styled(TableCell, {
     shouldForwardProp: (prop) => prop !== 'isSelecting',
-})(({ theme, isSelecting }) => ({
+})(({theme, isSelecting}) => ({
     transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms, padding 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-    width: ({ isSelecting }) => (isSelecting ? 'auto' : 0),
-    padding: ({ isSelecting }) => (isSelecting ? 'default' : 0),
+    width: ({isSelecting}) => (isSelecting ? 'auto' : 0),
+    padding: ({isSelecting}) => (isSelecting ? 'default' : 0),
 }));
 
-export function SongsTable({ songs, onSongSelect, isSelecting, setIsSelecting, selectedSongs, setSelectedSongs }) {
+export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, selectedSongs, setSelectedSongs, reset}) {
     const [orderBy, setOrderBy] = useState('title');
     const [order, setOrder] = useState('asc');
+    const [page, setPage] = useState(0);
+    const {user} = useSelector((state) => state.auth);
+
+    const ITEMS_PER_PAGE = user?.settings.table_rows || 5;
+    const lessThanOnePage = songs.length <= ITEMS_PER_PAGE;
+    // const lessThanOnePage = false;
+
+    useEffect(() => {
+        if (songs.length <= page * ITEMS_PER_PAGE) {
+            setPage(0);
+        }
+    }, [reset, page, songs]);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const displayedSongs = stableSort(songs, getComparator(order, orderBy))
+        .slice(page * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE + ITEMS_PER_PAGE);
+
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = songs.map((n) => n.id);
+            const newSelected = songs.map((n) => n._id);
             setSelectedSongs(newSelected);
             return;
         }
@@ -78,7 +106,7 @@ export function SongsTable({ songs, onSongSelect, isSelecting, setIsSelecting, s
         if (event.shiftKey && !isSelecting) {
             setIsSelecting(true);
             setSelectedSongs([].concat(id));
-        }else if (isSelecting) {
+        } else if (isSelecting) {
             const selectedIndex = selectedSongs.indexOf(id);
             let newSelected = [];
 
@@ -97,7 +125,7 @@ export function SongsTable({ songs, onSongSelect, isSelecting, setIsSelecting, s
 
             setSelectedSongs(newSelected);
         } else {
-            onSongSelect(songs.find(song => song.id === id));
+            onSongSelect(songs.find(song => song._id === id));
         }
     };
 
@@ -110,74 +138,95 @@ export function SongsTable({ songs, onSongSelect, isSelecting, setIsSelecting, s
     const isSelected = (id) => selectedSongs.indexOf(id) !== -1;
 
     return (
-        <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="songs table">
-                <TableHead>
-                    <TableRow>
-                        {isSelecting && (
-                            <Fade in={isSelecting}>
-                                <AnimatedTableCell padding="checkbox" isSelecting={isSelecting}>
-                                    <AnimatedCheckbox
-                                        indeterminate={selectedSongs.length > 0 && selectedSongs.length < songs.length}
-                                        checked={songs.length > 0 && selectedSongs.length === songs.length}
-                                        onChange={handleSelectAllClick}
-                                        className={isSelecting ? 'visible' : ''}
-                                    />
-                                </AnimatedTableCell>
-                            </Fade>
-                        )}
-                        {['title', 'artist', 'album', 'genre', 'duration'].map((headCell) => (
-                            <AnimatedTableCell key={headCell} isSelecting={isSelecting}>
-                                <TableSortLabel
-                                    active={orderBy === headCell}
-                                    direction={orderBy === headCell ? order : 'asc'}
-                                    onClick={() => handleRequestSort(headCell)}
-                                >
-                                    {headCell.charAt(0).toUpperCase() + headCell.slice(1)}
-                                    {orderBy === headCell ? (
-                                        <span style={{ border: 0, clip: 'rect(0 0 0 0)', height: '1px', margin: -1, overflow: 'hidden', padding: 0, position: 'absolute', top: '20px', width: '1px' }}>
+        <>
+            <TableContainer component={Paper}>
+                <Table sx={{minWidth: 650}} aria-label="songs table">
+                    <TableHead>
+                        <TableRow>
+                            {isSelecting && (
+                                <Fade in={isSelecting}>
+                                    <AnimatedTableCell padding="checkbox" isSelecting={isSelecting}>
+                                        <AnimatedCheckbox
+                                            indeterminate={selectedSongs.length > 0 && selectedSongs.length < songs.length}
+                                            checked={songs.length > 0 && selectedSongs.length === songs.length}
+                                            onChange={handleSelectAllClick}
+                                            className={isSelecting ? 'visible' : ''}
+                                        />
+                                    </AnimatedTableCell>
+                                </Fade>
+                            )}
+                            {['title', 'artist', 'album', 'genre', 'duration'].map((headCell) => (
+                                <AnimatedTableCell key={headCell} isSelecting={isSelecting}>
+                                    <TableSortLabel
+                                        active={orderBy === headCell}
+                                        direction={orderBy === headCell ? order : 'asc'}
+                                        onClick={() => handleRequestSort(headCell)}
+                                    >
+                                        {headCell.charAt(0).toUpperCase() + headCell.slice(1)}
+                                        {orderBy === headCell ? (
+                                            <span style={{
+                                                border: 0,
+                                                clip: 'rect(0 0 0 0)',
+                                                height: '1px',
+                                                margin: -1,
+                                                overflow: 'hidden',
+                                                padding: 0,
+                                                position: 'absolute',
+                                                top: '20px',
+                                                width: '1px'
+                                            }}>
                                             {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                                         </span>
-                                    ) : null}
-                                </TableSortLabel>
-                            </AnimatedTableCell>
-                        ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {(order === 'none' ? songs : stableSort(songs, getComparator(order, orderBy))).map((song) => {
-                        const isItemSelected = isSelected(song.id);
+                                        ) : null}
+                                    </TableSortLabel>
+                                </AnimatedTableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {(order === 'none' ? displayedSongs : stableSort(displayedSongs, getComparator(order, orderBy))).map((song) => {
+                            const isItemSelected = isSelected(song._id);
 
-                        return (
-                            <TableRow
-                                hover
-                                onClick={(event) => handleClick(event, song.id)}
-                                role="checkbox"
-                                aria-checked={isItemSelected}
-                                tabIndex={-1}
-                                key={song.id}
-                                selected={isItemSelected}
-                            >
-                                {isSelecting && (
-                                    <Fade in={isSelecting}>
-                                        <AnimatedTableCell padding="checkbox" isSelecting={isSelecting}>
-                                            <AnimatedCheckbox
-                                                checked={isItemSelected}
-                                                className={isSelecting ? 'visible' : ''}
-                                            />
-                                        </AnimatedTableCell>
-                                    </Fade>
-                                )}
-                                <AnimatedTableCell isSelecting={isSelecting}>{song.title}</AnimatedTableCell>
-                                <AnimatedTableCell isSelecting={isSelecting}>{song.artist}</AnimatedTableCell>
-                                <AnimatedTableCell isSelecting={isSelecting}>{song.album}</AnimatedTableCell>
-                                <AnimatedTableCell isSelecting={isSelecting}>{song.genre}</AnimatedTableCell>
-                                <AnimatedTableCell isSelecting={isSelecting}>{song.duration}</AnimatedTableCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                            return (
+                                <TableRow
+                                    hover
+                                    onClick={(event) => handleClick(event, song._id)}
+                                    role="checkbox"
+                                    aria-checked={isItemSelected}
+                                    tabIndex={-1}
+                                    key={song._id}
+                                    selected={isItemSelected}
+                                >
+                                    {isSelecting && (
+                                        <Fade in={isSelecting}>
+                                            <AnimatedTableCell padding="checkbox" isSelecting={isSelecting}>
+                                                <AnimatedCheckbox
+                                                    checked={isItemSelected}
+                                                    className={isSelecting ? 'visible' : ''}
+                                                />
+                                            </AnimatedTableCell>
+                                        </Fade>
+                                    )}
+                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.title}</AnimatedTableCell>
+                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.artist}</AnimatedTableCell>
+                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.album}</AnimatedTableCell>
+                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.genre}</AnimatedTableCell>
+                                    <AnimatedTableCell
+                                        isSelecting={isSelecting}>{song.basicInfo.duration}</AnimatedTableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {!lessThanOnePage && <TablePagination
+                rowsPerPageOptions={[ITEMS_PER_PAGE]}
+                component="div"
+                count={songs.length}
+                rowsPerPage={ITEMS_PER_PAGE}
+                page={page}
+                onPageChange={handleChangePage}
+            />}
+        </>
     );
 }

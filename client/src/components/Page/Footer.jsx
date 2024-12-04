@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Link, IconButton } from '@mui/material';
-import { GitHub, Twitter, LinkedIn } from '@mui/icons-material';
+import { GitHub, Instagram, LinkedIn } from '@mui/icons-material';
 
 export function Footer() {
     return (
@@ -12,7 +12,9 @@ export function Footer() {
                         ? theme.palette.grey[200]
                         : theme.palette.grey[800],
                 width: '100%',
+                bottom: 0,
             }}
+
         >
             <Container maxWidth={false}>
                 <Box
@@ -27,13 +29,13 @@ export function Footer() {
                         © {new Date().getFullYear()} MusicDB. All rights reserved.
                     </Typography>
                     <Box>
-                        <Link href="#" color="inherit" sx={{ mx: 1 }}>
+                        <Link href="privacy" color="inherit" sx={{ mx: 1 }}>
                             Privacy Policy
                         </Link>
-                        <Link href="#" color="inherit" sx={{ mx: 1 }}>
+                        <Link href="tos" color="inherit" sx={{ mx: 1 }}>
                             Terms of Service
                         </Link>
-                        <Link href="#" color="inherit" sx={{ mx: 1 }}>
+                        <Link href="contact" color="inherit" sx={{ mx: 1 }}>
                             Contact Us
                         </Link>
                     </Box>
@@ -46,13 +48,13 @@ export function Footer() {
                         mt: 2,
                     }}
                 >
-                    <IconButton color="inherit" aria-label="GitHub" component="a" href="#">
+                    <IconButton color="inherit" aria-label="GitHub" component="a" href="https://github.com/SimonPlazar/music-db" target="_blank">
                         <GitHub />
                     </IconButton>
-                    <IconButton color="inherit" aria-label="Twitter" component="a" href="#">
-                        <Twitter />
+                    <IconButton color="inherit" aria-label="Instagram" component="a" href="https://www.instagram.com/simon_plazar/" target="_blank">
+                        <Instagram />
                     </IconButton>
-                    <IconButton color="inherit" aria-label="LinkedIn" component="a" href="#">
+                    <IconButton color="inherit" aria-label="LinkedIn" component="a" href="https://www.linkedin.com/in/simon-plazar-56bb62285/" target="_blank">
                         <LinkedIn />
                     </IconButton>
                 </Box>
