@@ -1,21 +1,57 @@
-import {FETCH_ALL, CREATE, CREATE_MULTIPLE, UPDATE, DELETE, DELETE_MULTIPLE} from '../constants/actionTypes';
+import {
+    FETCH_ALL,
+    CREATE,
+    CREATE_MULTIPLE,
+    UPDATE,
+    DELETE,
+    DELETE_MULTIPLE,
+    FETCH_ALL_REQUEST,
+    FETCH_ALL_SUCCESS,
+    FETCH_ALL_FAILURE,
+    SET_SONGS
+} from '../constants/actionTypes';
 
-export default (songs = [], action) => {
+const initialState = {
+    songs: [],
+    loading: false,
+};
+
+export default (state = initialState, action) => {
     switch (action.type) {
+        case SET_SONGS:
+            return {...state, songs: action.payload};
+
         case FETCH_ALL:
-            // return action.payload;
-            return {songs: action.payload};
+            return {...state, songs: action.payload};
+        case FETCH_ALL_REQUEST:
+            return {...state, loading: true};
+        case FETCH_ALL_SUCCESS:
+            return {songs: action.payload, loading: false};
+        case FETCH_ALL_FAILURE:
+            return {...state, loading: false};
+
         case CREATE:
-            return [...songs, action.payload]; // spread songs and add new song
+            return {...state, songs: [...state.songs, action.payload]};
         case CREATE_MULTIPLE:
-            return [...songs, ...action.payload];
+            return {...state, songs: [...state.songs, ...action.payload]};
         case UPDATE:
-            return songs.map((post) => post._id === action.payload._id ? action.payload : post);
+            return {
+                ...state,
+                songs: state.songs.map((song) =>
+                    song._id === action.payload._id ? action.payload : song
+                ),
+            };
         case DELETE:
-            return songs.filter((post) => post._id !== action.payload);
+            return {
+                ...state,
+                songs: state.songs.filter((song) => song._id !== action.payload),
+            };
         case DELETE_MULTIPLE:
-            return songs.filter((post) => !action.payload.includes(post._id));
+            return {
+                ...state,
+                songs: state.songs.filter((song) => !action.payload.includes(song._id)),
+            };
         default:
-            return songs;
+            return state;
     }
 };

@@ -1,26 +1,34 @@
 import {ThemeProvider, createTheme} from '@mui/material/styles';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
 import {GoogleOAuthProvider} from "@react-oauth/google";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
 
-import LandingPage from './components/LandingPage/LandingPage';
-import LoginPage from './components/Account/Login';
 import PrivacyPolicy from './components/Misc/Privacy';
 import TermsOfService from './components/Misc/ToS';
 import ContactUs from './components/Misc/Contact';
-import Dashboard from './components/DashBoard/dashboard';
-import ImportExport from "./components/Logic/ImportExport";
+
+import LoginPage from './components/Account/Login';
 import Settings from "./components/Account/Settings";
 
-// import { AuthProvider } from './components/Logic/AuthContext';
+import Dashboard from './components/DashBoard/dashboard';
+
+import LandingPage from './components/Page/LandingPage';
+import Loading from "./components/Page/LoadingPage";
+
+import ImportExport from "./components/Logic/ImportExport";
+import PrivateRoute from "./components/Logic/PrivateRouter";
+import PublicRoute from "./components/Logic/PublicRouter";
+
 import {rehydrateAuth} from "./actions/users";
+
+import LoadingPage from "./components/Page/LoadingPage";
 
 
 function App() {
     const theme = createTheme();
     const dispatch = useDispatch();
-    const { loading } = useSelector((state) => state.auth);
+    const {loading} = useSelector((state) => state.auth);
 
     useEffect(() => {
         console.log('Rehydrating auth state');
@@ -28,28 +36,29 @@ function App() {
     }, [dispatch]);
 
     if (loading) {
-        return <div>Loading...</div>; // Show a loader while rehydrating auth state
+        return <Loading/>;
     }
 
     return (
         <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_API_KEY">
-            {/*<AuthProvider>*/}
             <ThemeProvider theme={theme}>
-                <Router>
+                {/*<Router>*/}
                     <Routes>
-                        <Route exact path="/" element={<LandingPage/>}/>
-                        <Route exact path="/landing" element={<LandingPage/>}/>
-                        <Route path="/login" element={<LoginPage/>}/>
+                        <Route exact path="/" element={<PublicRoute><LandingPage/></PublicRoute>}/>
+                        <Route exact path="/landing" element={<PublicRoute><LandingPage/></PublicRoute>}/>
+                        <Route path="/login" element={<PublicRoute><LoginPage/></PublicRoute>}/>
+
+                        <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
+                        <Route path="/import-export" element={<PrivateRoute><ImportExport/></PrivateRoute>}/>
+                        <Route path="/settings" element={<PrivateRoute><Settings/></PrivateRoute>}/>
+
                         <Route path="/privacy" element={<PrivacyPolicy/>}/>
                         <Route path="/tos" element={<TermsOfService/>}/>
                         <Route path="/contact" element={<ContactUs/>}/>
-                        <Route path="/dashboard" element={<Dashboard/>}/>
-                        <Route path="/import-export" element={<ImportExport/>}/>
-                        <Route path="/settings" element={<Settings/>}/>
+                        <Route path="/loading" element={<LoadingPage/>}/>
                     </Routes>
-                </Router>
+                {/*</Router>*/}
             </ThemeProvider>
-            {/*</AuthProvider>*/}
         </GoogleOAuthProvider>
     );
 }

@@ -1,6 +1,13 @@
 import * as api from '../api';
 
-import {LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, FETCH_SETTINGS, UPDATE_SETTINGS} from '../constants/authConstants';
+import {
+    LOGIN_REQUEST,
+    LOGIN_SUCCESS,
+    LOGIN_FAILURE,
+    LOGOUT,
+    FETCH_SETTINGS,
+    UPDATE_SETTINGS
+} from '../constants/authConstants';
 
 export const loginWithGoogle = (credential) => async (dispatch) => {
     dispatch({type: LOGIN_REQUEST});
@@ -53,7 +60,7 @@ export const rehydrateAuth = () => async (dispatch) => {
     if (!token) {
         console.log('No token found');
 
-        dispatch({ type: LOGOUT });
+        dispatch({type: LOGOUT});
         return;
     }
 
@@ -72,7 +79,7 @@ export const rehydrateAuth = () => async (dispatch) => {
         }
     } catch (error) {
         localStorage.removeItem('token');
-        dispatch({ type: LOGOUT });
+        dispatch({type: LOGOUT});
     }
 };
 

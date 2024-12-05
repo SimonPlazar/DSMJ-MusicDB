@@ -1,14 +1,17 @@
 import * as api from '../api';
-import { FETCH_ALL, CREATE, CREATE_MULTIPLE, UPDATE, DELETE, DELETE_MULTIPLE } from '../constants/actionTypes';
+import { CREATE, CREATE_MULTIPLE, UPDATE, DELETE, DELETE_MULTIPLE, FETCH_ALL_FAILURE, FETCH_ALL_REQUEST, FETCH_ALL_SUCCESS } from '../constants/actionTypes';
 
 export const getSongs = () => async (dispatch) => {
+    dispatch({type: FETCH_ALL_REQUEST});
     try {
         const {data} = await api.fetchSongs();
         // console.log('API data:',data);
-        dispatch({type: FETCH_ALL, payload: data});
+        // dispatch({type: FETCH_ALL, payload: data});
+        dispatch({type: FETCH_ALL_SUCCESS, payload: data});
         return data;
     } catch (error) {
         console.log(error.message);
+        dispatch({type: FETCH_ALL_FAILURE});
     }
 }
 

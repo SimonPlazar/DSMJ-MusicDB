@@ -1,11 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Modal,
     Box,
     Typography,
     TextField,
     Button,
-    Grid
+    Grid,
+    Divider
 } from '@mui/material';
 
 const style = {
@@ -13,44 +14,32 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 600,
+    maxHeight: '90vh',
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
+    overflow: 'auto',
 };
 
-export function EditSongModal({open, handleClose, song, onSave}) {
+export function EditSongModal({ open, handleClose, song, onSave }) {
     const [editedSong, setEditedSong] = useState(song);
-
-    // console.log("EditSongModal", song);
 
     useEffect(() => {
         setEditedSong(song);
     }, [song]);
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
+        const [category, field] = name.split('.');
 
-        // Check if the field belongs to `tags` or `basicInfo`
-        if (name in editedSong.tags) {
-            // Update the tags object immutably
-            setEditedSong((prev) => ({
-                ...prev,
-                tags: {
-                    ...prev.tags,
-                    [name]: value, // Update the specific field in tags
-                },
-            }));
-        } else if (name in editedSong.basicInfo) {
-            // Update the basicInfo object immutably
-            setEditedSong((prev) => ({
-                ...prev,
-                basicInfo: {
-                    ...prev.basicInfo,
-                    [name]: value, // Update the specific field in basicInfo
-                },
-            }));
-        }
+        setEditedSong((prev) => ({
+            ...prev,
+            [category]: {
+                ...prev[category],
+                [field]: value,
+            },
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -72,28 +61,31 @@ export function EditSongModal({open, handleClose, song, onSave}) {
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
+                            <Typography variant="subtitle1" gutterBottom>Tags</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
                             <TextField
                                 fullWidth
                                 label="Title"
-                                name="title"
+                                name="tags.title"
                                 value={editedSong.tags.title}
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={6}>
                             <TextField
                                 fullWidth
                                 label="Artist"
-                                name="artist"
+                                name="tags.artist"
                                 value={editedSong.tags.artist}
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={6}>
                             <TextField
                                 fullWidth
                                 label="Album"
-                                name="album"
+                                name="tags.album"
                                 value={editedSong.tags.album}
                                 onChange={handleChange}
                             />
@@ -101,8 +93,26 @@ export function EditSongModal({open, handleClose, song, onSave}) {
                         <Grid item xs={6}>
                             <TextField
                                 fullWidth
+                                label="Album Artist"
+                                name="tags.albumArtist"
+                                value={editedSong.tags.albumArtist}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
+                                label="Genre"
+                                name="tags.genre"
+                                value={editedSong.tags.genre}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                fullWidth
                                 label="Year"
-                                name="year"
+                                name="tags.year"
                                 type="number"
                                 value={editedSong.tags.year}
                                 onChange={handleChange}
@@ -111,18 +121,53 @@ export function EditSongModal({open, handleClose, song, onSave}) {
                         <Grid item xs={6}>
                             <TextField
                                 fullWidth
-                                label="Genre"
-                                name="genre"
-                                value={editedSong.tags.genre}
+                                label="Track Number"
+                                name="tags.trackNumber"
+                                type="number"
+                                value={editedSong.tags.trackNumber}
                                 onChange={handleChange}
                             />
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
                                 fullWidth
-                                label="Duration"
-                                name="duration"
+                                label="Disc Number"
+                                name="tags.discNumber"
+                                type="number"
+                                value={editedSong.tags.discNumber}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 2 }} />
+                            <Typography variant="subtitle1" gutterBottom>Basic Info</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                fullWidth
+                                label="Duration (seconds)"
+                                name="basicInfo.duration"
+                                type="number"
                                 value={editedSong.basicInfo.duration}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                fullWidth
+                                label="Format"
+                                name="basicInfo.format"
+                                value={editedSong.basicInfo.format}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                fullWidth
+                                label="Bitrate (bps)"
+                                name="basicInfo.bitrate"
+                                type="number"
+                                value={editedSong.basicInfo.bitrate}
                                 onChange={handleChange}
                             />
                         </Grid>
@@ -137,4 +182,3 @@ export function EditSongModal({open, handleClose, song, onSave}) {
         </Modal>
     );
 }
-

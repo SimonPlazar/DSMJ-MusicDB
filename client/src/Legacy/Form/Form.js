@@ -3,7 +3,7 @@ import useStyles from './styles';
 import {TextField, Button, Typography, Paper, MenuPaper} from "@mui/material";
 import FileBase from "react-file-base64";
 import {useDispatch, useSelector} from "react-redux";
-import {createPost, updatePost} from "../../actions/posts";
+import {createPost, updatePost} from "../actions_posts";
 
 const Form = ({currentId, setCurrentId}) => {
 

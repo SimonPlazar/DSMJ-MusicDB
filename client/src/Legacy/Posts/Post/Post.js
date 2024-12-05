@@ -6,7 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {useDispatch} from "react-redux";
 
-import {deletePost, likePost} from "../../../actions/posts";
+import {deletePost, likePost} from "../../actions_posts";
 
 const Post = ({ post, setCurrentId }) => {
 
