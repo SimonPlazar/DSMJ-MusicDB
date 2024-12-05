@@ -1,13 +1,5 @@
 import axios from "axios";
 
-// const url = "https://memories-mern-stack.herokuapp.com/posts"; // deployment url
-const url_posts = "http://localhost:5000/posts";
-
-export const fetchPosts = () => axios.get(url_posts);
-export const createPost = (newPost) => axios.post(url_posts, newPost);
-export const updatePost = (id, updatedPost) => axios.patch(`${url_posts}/${id}`, updatedPost);
-export const deletePost = (id) => axios.delete(`${url_posts}/${id}`);
-
 // const url = "https://memories-mern-stack.herokuapp.com/songs"; // deployment url
 const url = "http://localhost:5000/songs";
 const API = axios.create({baseURL: url});

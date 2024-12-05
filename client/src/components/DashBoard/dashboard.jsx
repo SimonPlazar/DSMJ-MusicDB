@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect} from 'react';
+import {useState, useCallback, useEffect, useMemo} from 'react';
 import {Box, CssBaseline, ThemeProvider, createTheme, Fab, Zoom} from '@mui/material';
 import {FilterList as FilterListIcon} from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,14 +7,12 @@ import {FilterSidebar} from './filter-sidebar';
 import {SongDetails} from './song-details';
 import {SongsTable} from './songs-table';
 import {Footer} from '../Page/Footer';
-
-// import {useAuth} from '../Logic/AuthContext';
-// import { checkLoggedIn } from '../../actions/users';
+import Loading from '../Page/LoadingPage';
+import {SET_SONGS} from "../../constants/actionTypes";
 
 import {useDispatch, useSelector} from "react-redux";
 
 import {getSongs, deleteSong, updateSong} from "../../actions/songs";
-import {useNavigate} from "react-router-dom";
 import {checkLoggedIn} from "../../actions/users";
 
 const theme = createTheme({
@@ -43,9 +41,6 @@ const theme = createTheme({
 
 export default function Dashboard() {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    // const {user, loading} = useAuth();
 
     const [selectedSong, setSelectedSong] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -54,61 +49,96 @@ export default function Dashboard() {
     const [showFilters, setShowFilters] = useState(false);
     const [isSelecting, setIsSelecting] = useState(false);
     const [selectedSongs, setSelectedSongs] = useState([]);
-    const [filteredSongs, setFilteredSongs] = useState([]);
+    const [filterFunctions, setFilterFunctions] = useState({});
 
-    const {user, loading} = useSelector((state) => state.auth);
-    const {songs = []} = useSelector((state) => state.songs);
-
-    // console.log('User:', user);
+    const {user, loading: authLoading} = useSelector((state) => state.auth);
+    const {songs, loading: songsLoading} = useSelector((state) => state.songs);
 
     useEffect(() => {
         console.log('Checking logged in');
-        if (!loading && !user) {
+        if (!authLoading && !user) {
             console.log('Dispatching checkLoggedIn');
             dispatch(checkLoggedIn());
         }
-    }, [dispatch, user, loading]);
-    //
-    // useEffect(() => {
-    //     // dispatch(checkLoggedIn());
-    //     if (!loading && !user) {
-    //         navigate('/login');
-    //     }
-    // }, [user, loading, navigate]);
-
+    }, [dispatch, user, authLoading]);
 
     useEffect(() => {
         dispatch(getSongs());
     }, [dispatch]);
 
-    useEffect(() => {
-        setFilteredSongs(songs);
-    }, [songs]);
-
     const applyFilters = useCallback((newFilterFunctions) => {
-        let filteredResults = [...songs];
+        setFilterFunctions(newFilterFunctions);
+    }, []);
 
-        Object.values(newFilterFunctions).forEach((filterFunction) => {
-            if (filterFunction !== null) {
-                filteredResults = filterFunction(filteredResults);
+    const resetFilters = useCallback(() => {
+        setFilterFunctions({});
+    }, []);
+
+    const filteredSongs = useMemo(() => {
+        let result = [...songs];
+
+        // Apply filter functions
+        Object.values(filterFunctions).forEach((filterFunction) => {
+            if (filterFunction) {
+                result = filterFunction(result);
             }
         });
 
+        // Apply search query
+        if (searchQuery) {
+            const lowerCaseQuery = searchQuery.toLowerCase();
 
-        setFilteredSongs(filteredResults);
-    }, [songs]);
+            // result = result.filter(song =>
+            //     // song.tags.title.toLowerCase().includes(lowerCaseQuery) ||
+            //     // song.tags.artist.toLowerCase().includes(lowerCaseQuery)
+            //     (song.tags.title.toLowerCase() + ' - ' + song.tags.artist.toLowerCase() + ' - ' + song.tags.album.toLowerCase()).includes(lowerCaseQuery)
+            // );
 
-    const resetFilters = useCallback(() => {
-        setFilteredSongs(songs);
-    }, [songs]);
+            const queryParts = lowerCaseQuery.split(' ');
+            const filters = {title: '', artist: '', album: '', general: ''};
 
-    if (loading) {
-        return <div>Loading...</div>;
+            queryParts.forEach((part) => {
+                if (part.startsWith('title:')) {
+                    filters.title = part.replace('title:', '').trim();
+                } else if (part.startsWith('artist:')) {
+                    filters.artist = part.replace('artist:', '').trim();
+                } else if (part.startsWith('album:')) {
+                    filters.album = part.replace('album:', '').trim();
+                } else {
+                    filters.general += ` ${part}`.trim(); // General search for any field
+                }
+            });
+
+            result = result.filter(song => {
+                const titleMatch = filters.title
+                    ? song.tags.title.toLowerCase().includes(filters.title)
+                    : true;
+                const artistMatch = filters.artist
+                    ? song.tags.artist.toLowerCase().includes(filters.artist)
+                    : true;
+                const albumMatch = filters.album
+                    ? song.tags.album.toLowerCase().includes(filters.album)
+                    : true;
+                const generalMatch = filters.general
+                    ? (
+                        song.tags.title.toLowerCase() +
+                        ' ' +
+                        song.tags.artist.toLowerCase() +
+                        ' ' +
+                        song.tags.album.toLowerCase()
+                    ).includes(filters.general)
+                    : true;
+
+                return titleMatch && artistMatch && albumMatch && generalMatch;
+            });
+        }
+
+        return result;
+    }, [songs, filterFunctions, searchQuery]);
+
+    if (authLoading || songsLoading) {
+        return <Loading/>;
     }
-
-    // if (!user) {
-    //     navigate('/login');
-    // }
 
     const handleSongClick = (song) => {
         setSelectedSong(song);
@@ -118,33 +148,35 @@ export default function Dashboard() {
     const handleDeleteSelected = () => {
         const ids = selectedSongs.map(songId => songId);
 
-        // if (ids.length === 1) dispatch(deleteSong(ids[0]));
-        // else if (ids.length > 1) {dispatch(deleteMultipleSongs(ids));
         for (let i = 0; i < ids.length; i++) {
             dispatch(deleteSong(ids[i]));
         }
 
-        const updatedSongs = songs.filter(song => !selectedSongs.includes(song._id));
-        setFilteredSongs(updatedSongs);
+        const updatedSongs = songs.filter((song) => !ids.includes(song._id));
+        dispatch({type: SET_SONGS, payload: updatedSongs});
+
         setSelectedSongs([]);
         setIsSelecting(false);
-
         setResetPageTrigger(prev => !prev);
     };
 
     const handleEditSong = (editedSong) => {
         dispatch(updateSong(editedSong._id, editedSong));
-        console.log('Edited song:', editedSong);
-        const updatedSongs = songs.map(song => song._id === editedSong._id ? editedSong : song);
-        setFilteredSongs(updatedSongs);
+
+        const updatedSongs = songs.map((song) =>
+            song._id === editedSong._id ? editedSong : song
+        );
+        dispatch({type: SET_SONGS, payload: updatedSongs});
+
         setSelectedSong(editedSong);
     };
 
     const handleDeleteSong = (songToDelete) => {
         dispatch(deleteSong(songToDelete._id));
-        // console.log('Deleted song:', songToDelete);
-        const updatedSongs = songs.filter(song => song._id !== songToDelete._id);
-        setFilteredSongs(updatedSongs);
+
+        const updatedSongs = songs.filter((song) => song._id !== songToDelete._id);
+        dispatch({ type: SET_SONGS, payload: updatedSongs });
+
         setShowSongDetails(false);
     };
 
@@ -241,4 +273,3 @@ export default function Dashboard() {
         </ThemeProvider>
     );
 }
-

@@ -6,9 +6,9 @@ import {
 
 import {
     ImportExport as ImportExportIcon,
-    PlaylistPlay as PlaylistPlayIcon,
-    BarChart as BarChartIcon,
-    Settings as SettingsIcon,
+    // PlaylistPlay as PlaylistPlayIcon,
+    // BarChart as BarChartIcon,
+    // Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 import {Logo} from '../Page/Logo';
@@ -18,12 +18,7 @@ import {SelectButton} from "./Navbar/SelectButton";
 import {SearchBox} from "./Navbar/SearchBox";
 import React from "react";
 
-// import { useAuth } from '../Logic/AuthContext';
-
-
 export function Navbar({searchQuery, setSearchQuery, isSelecting, setIsSelecting}) {
-    // const { user, logout } = useAuth();
-
     const menuItems = [
         {text: 'Import/Export', icon: <ImportExportIcon/>, path: '/import-export'},
         // {text: 'Playlists', icon: <PlaylistPlayIcon/>, path: '/playlists'},

@@ -11,6 +11,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {Navbar} from '../Page/Navbar';
 import {Footer} from "../Page/Footer";
+import Loading from "../Page/LoadingPage";
 
 
 const FormContainer = styled(Paper)(({theme}) => ({
@@ -37,7 +38,7 @@ export default function LoginPage() {
     }, [user, navigate]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loading/>;
     }
 
     if (user) {

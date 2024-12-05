@@ -4,3 +4,7 @@ export const UPDATE = 'UPDATE';
 export const DELETE = 'DELETE';
 export const DELETE_MULTIPLE = 'DELETE_MULTIPLE';
 export const FETCH_ALL = 'FETCH_ALL';
+export const FETCH_ALL_REQUEST = 'FETCH_ALL_REQUEST';
+export const FETCH_ALL_SUCCESS = 'FETCH_ALL_SUCCESS';
+export const FETCH_ALL_FAILURE = 'FETCH_ALL_FAILURE';
+export const SET_SONGS = 'SET_SONGS';
