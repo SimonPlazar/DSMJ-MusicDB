@@ -12,7 +12,7 @@ import {
     Paper,
 } from "@mui/material";
 import { Album, CloudUpload, Description, MusicNote } from "@mui/icons-material";
-import { TabPanel } from "../TabPanel";
+import { TabPanel } from "../../Page/TabPanel";
 import { extractMetadata, XMLToObj } from './import.js';
 import { createMultipleSongs, createSong } from "../../../actions/songs";
 import { useDispatch } from "react-redux";

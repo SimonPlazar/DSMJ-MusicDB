@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import {styled} from '@mui/material/styles';
 import {useSelector} from "react-redux";
+import {useTheme} from "@mui/system";
 
 function descendingComparator(a, b, orderBy) {
 
@@ -73,9 +74,12 @@ export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, se
     const [orderBy, setOrderBy] = useState('title');
     const [order, setOrder] = useState('asc');
     const [page, setPage] = useState(0);
-    const {user} = useSelector((state) => state.auth);
+    const {user} = useSelector((state) => state.auth)
+    const theme = useTheme();
 
-    const ITEMS_PER_PAGE = user?.settings.table_rows || 5;
+    const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
+
+    const ITEMS_PER_PAGE = user?.settings?.table_rows || theme.components?.SongTable?.defaultRows || 5;
     const lessThanOnePage = songs.length <= ITEMS_PER_PAGE;
     // const lessThanOnePage = false;
 
@@ -83,7 +87,7 @@ export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, se
         if (songs.length <= page * ITEMS_PER_PAGE) {
             setPage(0);
         }
-    }, [reset, page, songs]);
+    }, [reset, page, songs, ITEMS_PER_PAGE]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -155,7 +159,7 @@ export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, se
                                     </AnimatedTableCell>
                                 </Fade>
                             )}
-                            {['title', 'artist', 'album', 'genre', 'duration'].map((headCell) => (
+                            {shownAttributes.map((headCell) => (
                                 <AnimatedTableCell key={headCell} isSelecting={isSelecting}>
                                     <TableSortLabel
                                         active={orderBy === headCell}
@@ -207,12 +211,18 @@ export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, se
                                             </AnimatedTableCell>
                                         </Fade>
                                     )}
-                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.title}</AnimatedTableCell>
-                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.artist}</AnimatedTableCell>
-                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.album}</AnimatedTableCell>
-                                    <AnimatedTableCell isSelecting={isSelecting}>{song.tags.genre}</AnimatedTableCell>
-                                    <AnimatedTableCell
-                                        isSelecting={isSelecting}>{song.basicInfo.duration}</AnimatedTableCell>
+
+                                    {shownAttributes.map((attribute) => (
+                                        <AnimatedTableCell key={attribute} isSelecting={isSelecting}>
+                                            {song.tags[attribute] || song.basicInfo[attribute]}
+                                        </AnimatedTableCell>
+                                    ))}
+
+                                    {/*<AnimatedTableCell isSelecting={isSelecting}>{song.tags.title}</AnimatedTableCell>*/}
+                                    {/*<AnimatedTableCell isSelecting={isSelecting}>{song.tags.artist}</AnimatedTableCell>*/}
+                                    {/*<AnimatedTableCell isSelecting={isSelecting}>{song.tags.album}</AnimatedTableCell>*/}
+                                    {/*<AnimatedTableCell isSelecting={isSelecting}>{song.tags.genre}</AnimatedTableCell>*/}
+                                    {/*<AnimatedTableCell isSelecting={isSelecting}>{song.basicInfo.duration}</AnimatedTableCell>*/}
                                 </TableRow>
                             );
                         })}

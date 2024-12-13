@@ -13,19 +13,19 @@ import { Navbar } from '../Page/Navbar';
 import { Footer } from '../Page/Footer';
 import { Export } from './Export/Export.jsx';
 import { Import } from './Import/Import.jsx';
+import {useTheme} from "@mui/system";
+import {PageWrapper} from "../Page/PageWrapper";
 
 export default function ImportExport() {
     const [mainTabValue, setMainTabValue] = useState(0);
+    const theme = useTheme();
 
     const handleMainTabChange = (event, newValue) => {
         setMainTabValue(newValue);
     };
 
     return (
-        <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: '100vh',
+        <PageWrapper sx={{
             bgcolor: 'background.default',
         }}>
             <Navbar />
@@ -68,8 +68,8 @@ export default function ImportExport() {
                     </Grid>
                 </Grid>
             </Container>
-            <Footer />
-        </Box>
+            <Footer/>
+        </PageWrapper>
     );
 }
 

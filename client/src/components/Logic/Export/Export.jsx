@@ -4,7 +4,7 @@ import { CloudDownload } from "@mui/icons-material";
 import { getSongs } from "../../../actions/songs";
 import { objToXML } from "./export.js";
 import { useDispatch } from "react-redux";
-import { TabPanel } from "../TabPanel";
+import { TabPanel } from "../../Page/TabPanel";
 
 export function Export({ mainTabValue, index }) {
     const dispatch = useDispatch();

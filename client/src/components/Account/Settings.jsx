@@ -14,6 +14,7 @@ import {fetchSettings, updateSettings} from "../../actions/users";
 import {Navbar} from "../Page/Navbar";
 import {Footer} from "../Page/Footer";
 import {useDispatch, useSelector} from "react-redux";
+import {PageWrapper} from "../Page/PageWrapper";
 
 export default function Settings() {
     const {user} = useSelector((state) => state.auth);
@@ -83,7 +84,7 @@ export default function Settings() {
     }
 
     return (
-        <>
+        <PageWrapper>
             <Navbar/>
             <Container component="main" maxWidth="sm">
                 <Paper elevation={3} sx={{mt: 8, p: 4, mb: 8}}>
@@ -149,7 +150,7 @@ export default function Settings() {
                 </Snackbar>
             </Container>
             <Footer/>
-        </>
+        </PageWrapper>
     );
 }
 

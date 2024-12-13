@@ -9,9 +9,10 @@ import {useNavigate} from "react-router-dom";
 import { loginWithGoogle } from '../../actions/users';
 import {useDispatch, useSelector} from 'react-redux';
 
+import {PageWrapper} from "../Page/PageWrapper";
+import Loading from "../Page/LoadingPage";
 import {Navbar} from '../Page/Navbar';
 import {Footer} from "../Page/Footer";
-import Loading from "../Page/LoadingPage";
 
 
 const FormContainer = styled(Paper)(({theme}) => ({
@@ -80,9 +81,9 @@ export default function LoginPage() {
     };
 
     return (
-        <>
-            <Navbar/>
-            <Container component="main" maxWidth="xs" sx={{mt: 15, mb: 15}}>
+        <PageWrapper sx={{bgcolor: 'background.default'}}>
+            <Navbar showlogin={false}/>
+            <Container component="main" maxWidth="xs" sx={{mt: 9, mb: 15}}>
                 <FormContainer elevation={3}>
                     <Typography component="h1" variant="h5">
                         Log in to MusicDB
@@ -125,7 +126,7 @@ export default function LoginPage() {
                 </FormContainer>
             </Container>
             <Footer/>
-        </>
+        </PageWrapper>
     );
 }
 

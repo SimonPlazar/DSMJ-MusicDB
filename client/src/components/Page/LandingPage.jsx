@@ -7,6 +7,8 @@ import {Logo} from './Logo';
 import {Footer} from './Footer';
 import {useSelector} from "react-redux";
 import Loading from './LoadingPage';
+import {useTheme} from '@mui/system';
+import {PageWrapper} from "./PageWrapper";
 
 
 const HeroSection = styled(Box)(({theme}) => ({
@@ -55,6 +57,7 @@ const StyledAppBar = styled(AppBar)(({theme}) => ({
 export default function LandingPage() {
     const {user, loading} = useSelector((state) => state.auth);
     const navigate = useNavigate();
+    const theme = useTheme();
 
     useEffect(() => {
         if (!loading && user) {
@@ -67,7 +70,7 @@ export default function LandingPage() {
     }
 
     return (
-        <Box>
+        <PageWrapper>
             <StyledAppBar position="absolute">
                 <Toolbar>
                     <Logo/>
@@ -167,7 +170,7 @@ export default function LandingPage() {
             </Box>
 
             <Footer/>
-        </Box>
+        </PageWrapper>
     );
 }
 

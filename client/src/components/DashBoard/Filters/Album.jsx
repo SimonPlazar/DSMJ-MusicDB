@@ -9,6 +9,7 @@ export function AlbumFilter({onFilterFunctionChange, reset}) {
         setAlbum('');
         onFilterFunctionChange('album', null);
     }, [reset, onFilterFunctionChange]);
+
     const handleChange = (e) => {
         const value = e.target.value;
         setAlbum(value);

@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect, useMemo} from 'react';
+import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import {Box, CssBaseline, ThemeProvider, createTheme, Fab, Zoom} from '@mui/material';
 import {FilterList as FilterListIcon} from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -14,8 +14,10 @@ import {useDispatch, useSelector} from "react-redux";
 
 import {getSongs, deleteSong, updateSong} from "../../actions/songs";
 import {checkLoggedIn} from "../../actions/users";
+import {useTheme} from "@mui/system";
+import {PageWrapper} from "../Page/PageWrapper";
 
-const theme = createTheme({
+const themeee = createTheme({
     palette: {
         primary: {
             main: '#1976d2',
@@ -40,6 +42,7 @@ const theme = createTheme({
 });
 
 export default function Dashboard() {
+    const theme = useTheme();
     const dispatch = useDispatch();
 
     const [selectedSong, setSelectedSong] = useState(null);
@@ -175,7 +178,7 @@ export default function Dashboard() {
         dispatch(deleteSong(songToDelete._id));
 
         const updatedSongs = songs.filter((song) => song._id !== songToDelete._id);
-        dispatch({ type: SET_SONGS, payload: updatedSongs });
+        dispatch({type: SET_SONGS, payload: updatedSongs});
 
         setShowSongDetails(false);
     };
@@ -191,85 +194,83 @@ export default function Dashboard() {
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline/>
-            <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
-                <Navbar
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    isSelecting={isSelecting}
-                    setIsSelecting={setIsSelectingHandler}
-                />
+        <PageWrapper>
+            <Navbar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                isSelecting={isSelecting}
+                setIsSelecting={setIsSelectingHandler}
+            />
 
-                <Box sx={{display: 'flex', flex: 1}}>
-                    <FilterSidebar
-                        open={showFilters}
-                        onClose={() => setShowFilters(false)}
-                        onApplyFilters={applyFilters}
-                        onResetFilters={resetFilters}
+            <Box sx={{display: 'flex', flex: 1}}>
+                <FilterSidebar
+                    open={showFilters}
+                    onClose={() => setShowFilters(false)}
+                    onApplyFilters={applyFilters}
+                    onResetFilters={resetFilters}
+                />
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        p: 3,
+                        mt: 8,
+                        mb: 3,
+                        ml: showFilters ? 0 : '-300px',
+                        transition: 'margin 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <SongsTable
+                        songs={filteredSongs}
+                        onSongSelect={handleSongClick}
+                        isSelecting={isSelecting}
+                        setIsSelecting={setIsSelecting}
+                        selectedSongs={selectedSongs}
+                        setSelectedSongs={setSelectedSongs}
+                        reset={resetPageTrigger}
                     />
-                    <Box
-                        component="main"
-                        sx={{
-                            flexGrow: 1,
-                            p: 3,
-                            mt: 8,
-                            mb: 3,
-                            ml: showFilters ? 0 : '-300px',
-                            transition: 'margin 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-                            display: 'flex',
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <SongsTable
-                            songs={filteredSongs}
-                            onSongSelect={handleSongClick}
-                            isSelecting={isSelecting}
-                            setIsSelecting={setIsSelecting}
-                            selectedSongs={selectedSongs}
-                            setSelectedSongs={setSelectedSongs}
-                            reset={resetPageTrigger}
-                        />
-                    </Box>
                 </Box>
-                <Footer/>
-                <SongDetails
-                    open={showSongDetails}
-                    song={selectedSong}
-                    onClose={() => setShowSongDetails(false)}
-                    onEdit={handleEditSong}
-                    onDelete={handleDeleteSong}
-                />
+            </Box>
+            <Footer/>
 
-                <Zoom in={isSelecting}>
-                    <Fab
-                        color="secondary"
-                        aria-label="delete"
-                        sx={{
-                            position: 'fixed',
-                            bottom: 16,
-                            right: 16,
-                        }}
-                        onClick={handleDeleteSelected}
-                    >
-                        <DeleteIcon/>
-                    </Fab>
-                </Zoom>
+            <SongDetails
+                open={showSongDetails}
+                song={selectedSong}
+                onClose={() => setShowSongDetails(false)}
+                onEdit={handleEditSong}
+                onDelete={handleDeleteSong}
+            />
 
+            <Zoom in={isSelecting}>
                 <Fab
-                    color="primary"
-                    aria-label="filter"
+                    color="secondary"
+                    aria-label="delete"
                     sx={{
                         position: 'fixed',
                         bottom: 16,
-                        left: showFilters ? 316 : 16,
-                        transition: 'left 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+                        right: 16,
                     }}
-                    onClick={() => setShowFilters(!showFilters)}
+                    onClick={handleDeleteSelected}
                 >
-                    <FilterListIcon/>
+                    <DeleteIcon/>
                 </Fab>
-            </Box>
-        </ThemeProvider>
+            </Zoom>
+
+            <Fab
+                color="primary"
+                aria-label="filter"
+                sx={{
+                    position: 'fixed',
+                    bottom: 16,
+                    left: showFilters ? 316 : 16,
+                    transition: 'left 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+                }}
+                onClick={() => setShowFilters(!showFilters)}
+            >
+                <FilterListIcon/>
+            </Fab>
+        </PageWrapper>
     );
 }
