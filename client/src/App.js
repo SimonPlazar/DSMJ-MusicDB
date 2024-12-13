@@ -1,4 +1,4 @@
-import {ThemeProvider, createTheme} from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material/styles';
 import {Routes, Route} from 'react-router-dom';
 import {GoogleOAuthProvider} from "@react-oauth/google";
 import {useDispatch, useSelector} from "react-redux";
@@ -81,9 +81,13 @@ function App() {
             // TermsOfService: {
             //     variant: MODERN,
             // },
-            SongTable: {
-                // variant: MINIMAL,
-                defaultRows: 5,
+            // ImportExport: {
+            //     variant: MINIMAL,
+            // }
+            SongView: {
+                variant: MODERN,
+                defaultRows: 3,
+                defaultColumns: 4,
             }
         }
     });

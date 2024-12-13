@@ -1,11 +1,12 @@
 import React, {useState, useCallback, useEffect, useMemo} from 'react';
-import {Box, CssBaseline, ThemeProvider, createTheme, Fab, Zoom} from '@mui/material';
+import {Box, createTheme, Fab, Typography, Zoom} from '@mui/material';
 import {FilterList as FilterListIcon} from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Navbar} from './nav-bar';
 import {FilterSidebar} from './filter-sidebar';
 import {SongDetails} from './song-details';
-import {SongsTable} from './songs-table';
+import {SongsTable} from './SongView/songs-table';
+import {SongsCards} from "./SongView/SongCards";
 import {Footer} from '../Page/Footer';
 import Loading from '../Page/LoadingPage';
 import {SET_SONGS} from "../../constants/actionTypes";
@@ -16,6 +17,7 @@ import {getSongs, deleteSong, updateSong} from "../../actions/songs";
 import {checkLoggedIn} from "../../actions/users";
 import {useTheme} from "@mui/system";
 import {PageWrapper} from "../Page/PageWrapper";
+import {DEFAULT, MODERN} from "../../constants/ThemeTypes";
 
 const themeee = createTheme({
     palette: {
@@ -45,6 +47,8 @@ export default function Dashboard() {
     const theme = useTheme();
     const dispatch = useDispatch();
 
+    const variant = theme.components?.SongView?.variant || DEFAULT;
+
     const [selectedSong, setSelectedSong] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [resetPageTrigger, setResetPageTrigger] = useState(false);
@@ -56,6 +60,8 @@ export default function Dashboard() {
 
     const {user, loading: authLoading} = useSelector((state) => state.auth);
     const {songs, loading: songsLoading} = useSelector((state) => state.songs);
+
+    const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
 
     useEffect(() => {
         console.log('Checking logged in');
@@ -222,15 +228,35 @@ export default function Dashboard() {
                         flexDirection: 'column',
                     }}
                 >
-                    <SongsTable
-                        songs={filteredSongs}
-                        onSongSelect={handleSongClick}
-                        isSelecting={isSelecting}
-                        setIsSelecting={setIsSelecting}
-                        selectedSongs={selectedSongs}
-                        setSelectedSongs={setSelectedSongs}
-                        reset={resetPageTrigger}
-                    />
+                    {variant === MODERN ? (
+                        <Box>
+                            <Box sx={{display: 'flex', justifyContent: 'space-between', mb: 2}}>
+                                <Typography variant="h4">Your Songs</Typography>
+                            </Box>
+                            <SongsCards
+                                songs={filteredSongs}
+                                onSongSelect={handleSongClick}
+                                isSelecting={isSelecting}
+                                setIsSelecting={setIsSelecting}
+                                selectedSongs={selectedSongs}
+                                setSelectedSongs={setSelectedSongs}
+                                reset={resetPageTrigger}
+                                shownAttributes={shownAttributes}
+                            />
+                        </Box>
+                    ) :
+                        // default view
+                        <SongsTable
+                            songs={filteredSongs}
+                            onSongSelect={handleSongClick}
+                            isSelecting={isSelecting}
+                            setIsSelecting={setIsSelecting}
+                            selectedSongs={selectedSongs}
+                            setSelectedSongs={setSelectedSongs}
+                            reset={resetPageTrigger}
+                            shownAttributes={shownAttributes}
+                        />
+                    }
                 </Box>
             </Box>
             <Footer/>

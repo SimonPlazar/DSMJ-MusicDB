@@ -16,37 +16,7 @@ import {styled} from '@mui/material/styles';
 import {useSelector} from "react-redux";
 import {useTheme} from "@mui/system";
 
-function descendingComparator(a, b, orderBy) {
-
-    const aValue = a.tags?.[orderBy] || a.basicInfo?.[orderBy];
-    const bValue = b.tags?.[orderBy] || b.basicInfo?.[orderBy];
-
-    if (aValue < bValue) {
-        return -1;
-    }
-
-    if (aValue > bValue) {
-        return 1;
-    }
-
-    return 0;
-}
-
-function getComparator(order, orderBy) {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) return order;
-        return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-}
+import {stableSort, getComparator} from './SortLogic';
 
 const AnimatedCheckbox = styled(Checkbox)(({theme}) => ({
     transition: theme.transitions.create(['opacity', 'transform'], {
@@ -70,16 +40,16 @@ const AnimatedTableCell = styled(TableCell, {
     padding: ({isSelecting}) => (isSelecting ? 'default' : 0),
 }));
 
-export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, selectedSongs, setSelectedSongs, reset}) {
+export function SongsTable({songs, onSongSelect, isSelecting, setIsSelecting, selectedSongs, setSelectedSongs, reset, shownAttributes}) {
     const [orderBy, setOrderBy] = useState('title');
     const [order, setOrder] = useState('asc');
     const [page, setPage] = useState(0);
     const {user} = useSelector((state) => state.auth)
     const theme = useTheme();
 
-    const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
+    // const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
 
-    const ITEMS_PER_PAGE = user?.settings?.table_rows || theme.components?.SongTable?.defaultRows || 5;
+    const ITEMS_PER_PAGE = user?.settings?.table_rows || theme.components?.SongView?.defaultRows || 5;
     const lessThanOnePage = songs.length <= ITEMS_PER_PAGE;
     // const lessThanOnePage = false;
 
