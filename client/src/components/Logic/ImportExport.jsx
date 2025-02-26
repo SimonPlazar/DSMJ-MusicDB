@@ -26,6 +26,7 @@ export default function ImportExport({variant}) {
     };
 
     const variantProp = variant || theme.components?.ImportExport?.variant || DEFAULT;
+    // console.log('ImportExport variant:', variantProp);
 
     const defaultIO = () => (
         <PageWrapper sx={{bgcolor: 'background.default'}}>
@@ -60,10 +61,12 @@ export default function ImportExport({variant}) {
                             <Import
                                 mainTabValue={mainTabValue}
                                 index={0}
+                                variant={DEFAULT}
                             />
                             <Export
                                 mainTabValue={mainTabValue}
                                 index={1}
+                                variant={DEFAULT}
                             />
                         </Paper>
                     </Grid>

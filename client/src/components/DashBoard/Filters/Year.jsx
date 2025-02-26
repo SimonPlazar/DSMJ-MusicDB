@@ -66,3 +66,4 @@ export function YearFilter({ onFilterFunctionChange, reset }) {
     );
 }
 
+export default YearFilter;

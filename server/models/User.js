@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
     settings: {
         theme: { type: String, default: 'light' },
         table_rows: { type: Number, default: 5 },
+        table_cols: { type: Number, default: 3 }
     }
 });
 

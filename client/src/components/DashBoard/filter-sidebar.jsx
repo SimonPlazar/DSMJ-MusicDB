@@ -1,14 +1,29 @@
-import { Box, Typography, Button, Drawer } from '@mui/material';
-import {useCallback, useState} from 'react';
-import { ArtistFilter } from './Filters/Artist';
-import { AlbumFilter } from './Filters/Album';
-import { GenreFilter } from './Filters/Genre';
-import { YearFilter } from './Filters/Year';
+import {Box, Typography, Button, Drawer} from '@mui/material';
+import React, {Suspense, useCallback, useEffect, useState} from 'react';
 
-export function FilterSidebar({ open, onClose, onApplyFilters, onResetFilters }) {
+// import { ArtistFilter } from './Filters/Artist';
+// import {AlbumFilter} from './Filters/Album';
+// import {GenreFilter} from './Filters/Genre';
+// import {YearFilter} from './Filters/Year';
+// import Artist from './Filters/Artist';
+
+// import {filtersPath, filters, shownGenres} from "../../AppStyle";
+
+export function FilterSidebar({open, onClose, onApplyFilters, onResetFilters, filterVars}) {
     const [resetTrigger, setResetTrigger] = useState(false);
     const [filterFunctions, setFilterFunctions] = useState({});
-    const genres = ['Rock', 'Pop', 'Jazz', 'Classical'];
+    // const [filterComponents, setFilterComponents] = useState({});
+
+    // const [dynamicVariables, setDynamicVariables]
+
+    // useEffect(() => {
+    //     const initializeFilters  = async () => {
+    //         const vars = await loadDynamicVariables();
+    //
+    //     };
+    //
+    //     initializeFilters();
+    // }, []);
 
     const handleFilterFunctionChange = useCallback((filterName, filterFunction) => {
         setFilterFunctions(prev => ({
@@ -44,7 +59,7 @@ export function FilterSidebar({ open, onClose, onApplyFilters, onResetFilters })
                 },
             }}
         >
-            <Box sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{p: 3, height: '100%', display: 'flex', flexDirection: 'column'}}>
                 <Typography variant="h6" gutterBottom>
                     Filters
                 </Typography>
@@ -62,13 +77,30 @@ export function FilterSidebar({ open, onClose, onApplyFilters, onResetFilters })
                         msOverflowStyle: 'none',
                     }}
                 >
-                    <ArtistFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
-                    <AlbumFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
-                    <GenreFilter onFilterFunctionChange={handleFilterFunctionChange} genres={genres} reset={resetTrigger}/>
-                    <YearFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>
+                    {/*<Artist onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>*/}
+                    {/*/!*<ArtistFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>*!/*/}
+                    {/*<AlbumFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>*/}
+                    {/*<GenreFilter onFilterFunctionChange={handleFilterFunctionChange} genres={genres} reset={resetTrigger}/>*/}
+                    {/*<YearFilter onFilterFunctionChange={handleFilterFunctionChange} reset={resetTrigger}/>*/}
+
+                    {filterVars.filters.map((filter) => {
+                        const FilterComponent = filterVars.filterComponents[filter];
+                        return (
+                            FilterComponent ? (
+                                <Suspense fallback={<div>Loading...</div>} key={filter}>
+                                    <FilterComponent
+                                        onFilterFunctionChange={handleFilterFunctionChange}
+                                        reset={resetTrigger}
+                                        {...(filter === 'Genre' && {genres: filterVars.shownGenres})}
+                                    />
+                                </Suspense>
+                            ) : null
+                        );
+                    })}
+
                 </Box>
 
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{mt: 2}}>
                     <Button
                         variant="contained"
                         fullWidth
@@ -80,7 +112,7 @@ export function FilterSidebar({ open, onClose, onApplyFilters, onResetFilters })
                         variant="outlined"
                         fullWidth
                         color="error"
-                        sx={{ mt: 1 }}
+                        sx={{mt: 1}}
                         onClick={handleResetFilters}
                     >
                         Reset Filters

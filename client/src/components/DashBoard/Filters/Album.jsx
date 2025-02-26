@@ -41,3 +41,5 @@ export function AlbumFilter({onFilterFunctionChange, reset}) {
     );
 }
 
+export default AlbumFilter;
+

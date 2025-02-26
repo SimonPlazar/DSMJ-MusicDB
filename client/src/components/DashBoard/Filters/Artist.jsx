@@ -41,3 +41,5 @@ export function ArtistFilter({onFilterFunctionChange, reset}) {
     );
 }
 
+export default ArtistFilter;
+

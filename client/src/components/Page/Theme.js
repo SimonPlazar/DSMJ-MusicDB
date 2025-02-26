@@ -1,6 +1,5 @@
 import { createTheme } from '@mui/material/styles';
 
-// Define our theme presets
 const presets = {
     minimal: {
         palette: {
@@ -131,8 +130,8 @@ const createCustomTheme = (preset = '', options = {}) => {
     return createTheme({
         ...mergedOptions,
         components: {
-            ...mergedOptions.components,
             ...costumButtons,
+            ...mergedOptions.components,
         },
     });
 };

@@ -67,3 +67,5 @@ export function GenreFilter({onFilterFunctionChange, genres, reset}) {
     );
 }
 
+export default GenreFilter;
+

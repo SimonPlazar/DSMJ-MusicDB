@@ -45,13 +45,19 @@ export function SongsCards({ songs, onSongSelect, isSelecting, setIsSelecting, s
     // const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
 
     const ITEM_ROWS = user?.settings?.table_rows || theme.components?.SongView?.defaultRows || 4;
-    const ITEM_COLUMNS = user?.settings?.table_cols || theme.components?.SongView?.defaultColumns || 3;
+    // const ITEM_COLUMNS = user?.settings?.table_cols || theme.components?.SongView?.defaultColumns || 3;
+    const ITEM_COLUMNS = theme.components?.SongView?.defaultColumns || 3;
+    // console.log("ITEM_COLUMNS: ", theme.components?.SongView?.defaultColumns)
 
+    // const gridSize = Math.floor(12 / ITEM_COLUMNS);
+    const gridSize = 12 / ITEM_COLUMNS;
     const ITEMS_PER_PAGE = ITEM_ROWS * ITEM_COLUMNS;
+    // const ITEMS_PER_PAGE = ITEM_ROWS * gridSize;
     const totalPages = Math.ceil(songs.length / ITEMS_PER_PAGE);
 
     useEffect(() => {
         if (songs.length <= (page - 1) * ITEMS_PER_PAGE) {
+            // setPage(Math.ceil(songs.length / ITEMS_PER_PAGE)); // go to last page
             setPage(1);
         }
     }, [reset, page, songs, ITEMS_PER_PAGE]);
@@ -108,8 +114,6 @@ export function SongsCards({ songs, onSongSelect, isSelecting, setIsSelecting, s
     const sortedSongs = stableSort(songs, getComparator(order, orderBy));
     const displayedSongs = sortedSongs.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-    const gridSize = Math.floor(12 / ITEM_COLUMNS);
-
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -144,7 +148,8 @@ export function SongsCards({ songs, onSongSelect, isSelecting, setIsSelecting, s
 
                     return (
                         // <Grid item xs={12} sm={6} md={4} lg={3} key={song._id}>
-                        <Grid item xs={12} sm={gridSize} md={gridSize} lg={gridSize} key={song._id}>
+                        // <Grid item xs={12} sm={gridSize} md={gridSize} lg={gridSize} key={song._id}>
+                        <Grid item xs={12 / ITEM_COLUMNS} sm={12 / ITEM_COLUMNS} md={12 / ITEM_COLUMNS} lg={12 / ITEM_COLUMNS} key={song._id}>
                             <Card
                                 raised={isItemSelected}
                                 onClick={(event) => handleClick(event, song._id)}

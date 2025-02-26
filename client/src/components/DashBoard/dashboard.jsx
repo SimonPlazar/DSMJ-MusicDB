@@ -19,6 +19,8 @@ import {useTheme} from "@mui/system";
 import {PageWrapper} from "../Page/PageWrapper";
 import {DEFAULT, MODERN} from "../../constants/ThemeTypes";
 
+import { getConfig } from "../../configStore";
+
 const themeee = createTheme({
     palette: {
         primary: {
@@ -43,6 +45,45 @@ const themeee = createTheme({
     },
 });
 
+const loadDynamicVariables = () => {
+    try {
+        // const dynamicVars = await import('../../AppStyle');
+        const dynamicVars = getConfig();
+
+        const filters_str = dynamicVars.filters.map((filter) => {
+            return filter.charAt(0).toUpperCase() + filter.slice(1);
+        }, []);
+
+        return {
+            filters: filters_str || ['Artist', 'Album', 'Genre', 'Year'],
+            shownGenres: dynamicVars.shownGenres || ['Rock', 'Pop', 'Jazz', 'Classical'],
+            filtersPath: dynamicVars.filtersPath || 'client/src/components/DashBoard/Filters',
+            shownAttributes: dynamicVars.shownAttributes || ['title', 'artist', 'album', 'genre', 'duration'],
+        };
+    } catch (error) {
+        console.error('Failed to load dynamic variables, using defaults:', error);
+        return {
+            filters: ['Artist', 'Album', 'Genre', 'Year'],
+            shownGenres: ['Rock', 'Pop', 'Jazz', 'Classical'],
+            filtersPath: 'client/src/components/DashBoard/Filters',
+            shownAttributes: ['title', 'artist', 'album', 'genre', 'duration'],
+        };
+    }
+};
+
+// const loadDynamicVariables = async () => {
+//     try {
+//         const dynamicVars = await import('../../AppStyle');
+//
+//         return {
+//         };
+//     } catch (error) {
+//         console.error('Failed to load dynamic variables, using defaults:', error);
+//         return {
+//         };
+//     }
+// };
+
 export default function Dashboard() {
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -61,7 +102,36 @@ export default function Dashboard() {
     const {user, loading: authLoading} = useSelector((state) => state.auth);
     const {songs, loading: songsLoading} = useSelector((state) => state.songs);
 
-    const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
+    // const shownAttributes = ['title', 'artist', 'album', 'genre', 'duration'];
+    const [shownAttributes, setShownAttributes] = useState([]);
+    const [filterVars, setFilterVars] = useState({
+        filterComponents: {},
+        filters: [],
+        shownGenres: [],
+    });
+
+    useEffect(() => {
+        const initializeAttributes = async () => {
+            const vars = loadDynamicVariables();
+            setShownAttributes(vars.shownAttributes);
+
+            const components = {};
+            for (let i = 0; i < vars.filters.length; i++) {
+                try {
+                    components[vars.filters[i]] = await require(`../../../../${vars.filtersPath}/${vars.filters[i]}.jsx`).default;
+                } catch (error) {
+                    console.error(`Failed to load ${vars.filters[i]} filter component`, error);
+                }
+            }
+            setFilterVars({
+                filterComponents: components,
+                filters: vars.filters,
+                shownGenres: vars.shownGenres,
+            });
+        };
+
+        initializeAttributes()
+    }, []);
 
     useEffect(() => {
         console.log('Checking logged in');
@@ -214,6 +284,7 @@ export default function Dashboard() {
                     onClose={() => setShowFilters(false)}
                     onApplyFilters={applyFilters}
                     onResetFilters={resetFilters}
+                    filterVars={filterVars}
                 />
                 <Box
                     component="main"
