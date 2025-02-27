@@ -28,6 +28,8 @@ const SocialButton = styled(Button)(({theme}) => ({
 }));
 
 export default function LoginPage() {
+    const GoogleApiKey = process.env.REACT_APP_CLIENT_ID
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {user, loading} = useSelector((state) => state.auth);
@@ -44,6 +46,11 @@ export default function LoginPage() {
 
     if (user) {
         return null;
+    }
+
+    if (!GoogleApiKey){
+        console.error("Google API Key is missing!");
+        return <div>Error: Missing API Key</div>;
     }
 
     // const responseGoogleSuccess = async (credentialResponse) => {
@@ -90,7 +97,7 @@ export default function LoginPage() {
                     </Typography>
                     <Box sx={{mt: 3, width: '100%'}}>
                         <GoogleLogin
-                            clientId="YOUR_GOOGLE_CLIENT_API_KEY"
+                            clientId={GoogleApiKey}
                             render={renderProps => (
                                 <SocialButton
                                     fullWidth

@@ -57,6 +57,9 @@ const loadDynamicVariables = () => {
 };
 
 function App() {
+    const GoogleApiKey = process.env.REACT_APP_CLIENT_ID;
+    // console.log("Google Api Key: ", GoogleApiKey)
+
     const dispatch = useDispatch();
     const {loading} = useSelector((state) => state.auth);
     const [dynamicVariables, setDynamicVariables] = useState({
@@ -83,8 +86,13 @@ function App() {
         return <Loading/>;
     }
 
+    if (!GoogleApiKey) {
+        console.error("Google API Key is missing!");
+        return <div>Error: Missing API Key</div>;
+    }
+
     return (
-        <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_API_KEY">
+        <GoogleOAuthProvider clientId={GoogleApiKey}>
             <ThemeProvider theme={dynamicVariables.theme}>
                 <Routes>
                     {/*<Route exact path="/" element={<PublicRoute><LandingPage/></PublicRoute>}/>*/}
